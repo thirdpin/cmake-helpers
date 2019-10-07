@@ -1,0 +1,5 @@
+#pragma once
+
+namespace version {
+	static constexpr const char STRING[]="@_build_version@";
+}
