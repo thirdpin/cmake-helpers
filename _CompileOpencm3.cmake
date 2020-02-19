@@ -45,9 +45,11 @@ function(compile_opencm3_for)
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
 
+        string(TOLOWER ${OS_RELEASE_STR} OS_RELEASE_STR)
+
         string(FIND
             ${OS_RELEASE_STR}  # [in] string
-            "Microsoft"        # [in] substring
+            "microsoft"        # [in] substring
             MICROSOFT_POS      # [out] position of substring
         )
 
@@ -108,8 +110,9 @@ function(compile_opencm3_for)
 
     # Apply all patches for libopencm3
     execute_process(
-        COMMAND bash -c "LANG=en_US.utf8 && \
-                         git am ${SOURCE_DIR_LINUX_PATH}/patches/libopencm3/*"
+        COMMAND bash -c "[ -z \"$(ls -A ${SOURCE_DIR_LINUX_PATH}/patches/libopencm3)\" ] && \
+        echo \"No patches found for libopencm3\" ||
+        git am ${SOURCE_DIR_LINUX_PATH}/patches/libopencm3/*"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libopencm3
         ENCODING UTF8
     )
@@ -144,7 +147,7 @@ function(compile_opencm3_for)
                                    "lib/stm32/${LOWERED_STMFx_PREFIX}")
 
         execute_process(
-            COMMAND bash -c ${MAKE_CMD}
+            COMMAND bash --login -c ${MAKE_CMD}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libopencm3
             ENCODING UTF8
         )

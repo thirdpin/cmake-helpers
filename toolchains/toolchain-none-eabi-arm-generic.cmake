@@ -40,24 +40,28 @@ ELSE()
     SET(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 ENDIF()
 
+# Find the target environment prefix..
+# First see where gcc is keeping libc.a
+execute_process(
+  COMMAND ${CMAKE_C_COMPILER} --print-file-name=libc.a
+  OUTPUT_VARIABLE TOOLCHAIN_PREFIX
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
-## -->  Get ARM toolchain path
-    execute_process(
-        COMMAND ${CMAKE_C_COMPILER} --print-file-name=libc.a
-        OUTPUT_VARIABLE TOOLCHAIN_PREFIX
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+# Strip the filename off
+get_filename_component(TOOLCHAIN_PREFIX
+  "${TOOLCHAIN_PREFIX}" PATH
+)
 
-    get_filename_component(TOOLCHAIN_PREFIX
-        "${TOOLCHAIN_PREFIX}" PATH
-    )
+# Then find the canonical path to the directory one up from there
+get_filename_component(TOOLCHAIN_PREFIX
+  "${TOOLCHAIN_PREFIX}/.." REALPATH
+)
+set(TOOLCHAIN_PREFIX  ${TOOLCHAIN_PREFIX} CACHE FILEPATH
+    "Install path prefix, prepended onto install directories.")
 
-    get_filename_component(TOOLCHAIN_PREFIX
-        "${TOOLCHAIN_PREFIX}/.." REALPATH
-    )
-## <--
-
-set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX} CACHE FILEPATH "Install prefix")
+message(STATUS "Cross-compiling with the gcc-arm-embedded toolchain")
+message(STATUS "Toolchain prefix: ${TOOLCHAIN_PREFIX}")
 
 set(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_PREFIX})
 
@@ -67,6 +71,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 SET(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
+
 
 set(CMAKE_INSTALL_PREFIX "${TOOLCHAIN_PREFIX}" CACHE PATH "...")
 
