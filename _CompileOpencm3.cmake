@@ -104,17 +104,19 @@ function(compile_opencm3_for)
 
     # Init and update libopencm3 module
     execute_process(
-        COMMAND git submodule init ${CMAKE_SOURCE_DIR}/src/libopencm3
-        COMMAND git submodule update ${CMAKE_SOURCE_DIR}/src/libopencm3
+        COMMAND git submodule init
+        COMMAND git submodule update
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libopencm3
     )
 
     # Apply all patches for libopencm3
     execute_process(
         COMMAND bash -c "[ -z \"$(ls -A ${SOURCE_DIR_LINUX_PATH}/patches/libopencm3)\" ] && \
-        echo \"No patches found for libopencm3\" ||
+        echo \"-- No patches found for libopencm3\" ||
         git am ${SOURCE_DIR_LINUX_PATH}/patches/libopencm3/*"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libopencm3
         ENCODING UTF8
+        ERROR_QUIET
     )
 
     # Calculate optimal count of threads for a compiling
@@ -158,8 +160,9 @@ function(compile_opencm3_for)
 
     # Reset patches
     execute_process(
-        COMMAND git submodule init ${CMAKE_SOURCE_DIR}/src/libopencm3
-        COMMAND git submodule update ${CMAKE_SOURCE_DIR}/src/libopencm3
+        COMMAND git submodule init
+        COMMAND git submodule update
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libopencm3
     )
 
     message(STATUS "Opencm3 succesfully compiled for all prefixes.\n")
